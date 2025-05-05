@@ -1,0 +1,107 @@
+Super! To pomeni, da moraš:
+
+1. Dodati **splošno šablono funkcije**:
+
+```cpp
+template<typename T>
+bool isEqual(const LinearQueue<T>& q1, const LinearQueue<T>& q2)
+```
+
+– ki primerja vse elemente v obeh vrstah.
+
+2. Dodati **specializacijo za `Point`**, ker v `Point` nimaš operatorja `==`, zato moraš primerjati koordinate ročno.
+
+---
+
+## ✅ **1. Splošna šablona funkcije `isEqual`**
+
+Primerja, če imata `q1` in `q2`:
+
+* enako število elementov
+* elemente v enakem vrstnem redu
+
+```cpp
+template<typename T>
+bool isEqual(const LinearQueue<T>& q1, const LinearQueue<T>& q2) {
+    if (q1.size() != q2.size()) return false;
+
+    for (int i = 0; i < q1.size(); ++i) {
+        if (q1.get(i) != q2.get(i)) return false;
+    }
+    return true;
+}
+```
+
+Ampak trenutno **nimaš metode `get(i)` v razredu** → zato raje **dostopaj do `values` neposredno**. To lahko naredimo, če dodamo `friend` dostop funkciji:
+
+---
+
+## 🛠️ Popravek: Dodaj v `LinearQueue` razred:
+
+```cpp
+template<typename U>
+friend bool isEqual(const LinearQueue<U>&, const LinearQueue<U>&);
+```
+
+In potem:
+
+```cpp
+template<typename T>
+bool isEqual(const LinearQueue<T>& q1, const LinearQueue<T>& q2) {
+    if (q1.values.size() != q2.values.size()) return false;
+    for (size_t i = 0; i < q1.values.size(); ++i) {
+        if (q1.values[i] != q2.values[i]) return false;
+    }
+    return true;
+}
+```
+
+---
+
+## ✅ 2. Specializacija za `Point`
+
+Ker `Point` nima operatorja `==`, moraš primerjati koordinate ročno.
+
+Če `Point` še vedno nima `getX()` in `getY()`, uporabi `ostringstream + sscanf` (kot prej). Ali še bolje – **dodaj metodi `getX()` in `getY()`** v `Point.h`:
+
+```cpp
+int getX() const { return x; }
+int getY() const { return y; }
+```
+
+Potem napiši specializacijo:
+
+```cpp
+template<>
+bool isEqual<Point>(const LinearQueue<Point>& q1, const LinearQueue<Point>& q2) {
+    if (q1.values.size() != q2.values.size()) return false;
+
+    for (size_t i = 0; i < q1.values.size(); ++i) {
+        const Point& p1 = q1.values[i];
+        const Point& p2 = q2.values[i];
+        if (p1.getX() != p2.getX() || p1.getY() != p2.getY())
+            return false;
+    }
+    return true;
+}
+```
+
+---
+
+## 🧩 Kam to dodaš?
+
+Vse to gre v datoteko `LinearQueue.h`, **pod vsemi funkcijami**, npr. **na koncu datoteke**, pred `#endif`.
+
+---
+
+## 🔚 Zaključek:
+
+✔️ Dodali smo:
+
+* [x] Splošno funkcijo `isEqual`
+* [x] Specializacijo za `Point`
+* [x] Prijazen dostop preko `friend` v razredu `LinearQueue`
+
+---
+
+❓ Želiš, da ti vse to že zdaj vključim v končno verzijo `LinearQueue.h`, pripravljeno za uporabo in testiranje?
